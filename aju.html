@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>18K Counter — by Ajmal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:wght@300;400;600&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --g:#C9A84C;--gl:#E8C96A;--gd:#8B6914;--gp:#F5E6BA;--gs:#FFD966;
+  --cr:#FDFAF2;--cr2:#F7F0DC;--dk:#1C1409;--dk2:#2E2010;
+  --tx:#1a1205;--tx2:#3D2B00;--bd:#D4AF60;
+  --sh:0 4px 24px rgba(180,140,40,.13);--shd:0 8px 40px rgba(120,80,0,.18)
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Rajdhani',sans-serif;background:var(--cr);color:var(--tx);min-height:100vh;overflow-x:hidden}
+.screen{display:none;min-height:100vh;flex-direction:column}
+.screen.on{display:flex}
+
+/* PASSWORD */
+#s-pwd{background:linear-gradient(145deg,#FFF8E7 0%,#FEF0C0 30%,#FDE8A0 60%,#FCEBD5 100%);align-items:center;justify-content:center;position:relative;overflow:hidden}
+#s-pwd::before{content:’’;position:absolute;inset:0;
+background:
+radial-gradient(ellipse at 15% 20%,rgba(255,210,80,.35),transparent 45%),
+radial-gradient(ellipse at 85% 15%,rgba(255,180,60,.25),transparent 40%),
+radial-gradient(ellipse at 50% 85%,rgba(201,168,76,.2),transparent 50%),
+radial-gradient(ellipse at 80% 70%,rgba(255,220,120,.3),transparent 40%)}
+/* floating decorative circles */
+#s-pwd::after{content:’’;position:absolute;width:320px;height:320px;border-radius:50%;border:1.5px dashed rgba(201,168,76,.25);top:-80px;left:-80px;animation:spin-slow 20s linear infinite}
+@keyframes spin-slow{to{transform:rotate(360deg)}}
+.pc{background:linear-gradient(160deg,#FFFFFF 0%,#FFFCF0 60%,#FFF8DC 100%);border:2px solid rgba(201,168,76,.55);border-radius:24px;padding:46px 52px;width:440px;max-width:95vw;text-align:center;position:relative;box-shadow:0 8px 40px rgba(201,140,30,.18),0 2px 8px rgba(201,168,76,.12),inset 0 1px 0 rgba(255,255,255,.9)}
+.pc-ttl{font-family:‘Playfair Display’,serif;font-size:52px;background:linear-gradient(135deg,#7A5000,#C9A84C,#8B6914);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:8px;margin-bottom:2px;line-height:1}
+.pc-sub{font-family:‘Cormorant Garamond’,serif;color:#A07820;font-size:14px;letter-spacing:5px;text-transform:uppercase;margin-bottom:8px}
+.pc-divider{width:60px;height:2px;background:linear-gradient(to right,transparent,#C9A84C,transparent);margin:0 auto 28px}
+.pc-lbl{color:#8B6914;font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;text-align:left}
+.pc-inp{width:100%;background:#FFFDF5;border:2px solid #D4AF60;border-radius:12px;padding:14px 18px;color:#1a1205;font-size:26px;font-family:‘Rajdhani’,sans-serif;letter-spacing:12px;text-align:center;outline:none;transition:.3s;margin-bottom:22px;box-shadow:inset 0 2px 6px rgba(201,168,76,.1)}
+.pc-inp::placeholder{color:#C9A84C;opacity:.5}
+.pc-inp:focus{border-color:#C9A84C;box-shadow:0 0 0 4px rgba(201,168,76,.15),inset 0 2px 6px rgba(201,168,76,.08)}
+.pc-btn{width:100%;background:linear-gradient(135deg,#8B6914 0%,#C9A84C 40%,#E8C96A 70%,#C9A84C 100%);color:#3D2000;border:none;border-radius:12px;padding:16px;font-family:‘Rajdhani’,sans-serif;font-size:16px;font-weight:700;letter-spacing:5px;cursor:pointer;transition:.2s;box-shadow:0 4px 18px rgba(201,168,76,.4),0 1px 0 rgba(255,255,255,.3) inset}
+.pc-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(201,168,76,.5)}
+.pc-btn:active{transform:translateY(0)}
+.pc-sig{position:absolute;bottom:16px;right:20px;font-family:‘Playfair Display’,serif;font-style:italic;color:#C9A84C;font-size:12px;letter-spacing:2px;opacity:.8}
+
+/* HEADER */
+.hdr{background:linear-gradient(135deg,#F5E099 0%,#EDD060 35%,#F0D870 60%,#E8C84A 100%);padding:0 22px;display:flex;align-items:center;justify-content:space-between;min-height:80px;box-shadow:0 4px 18px rgba(180,130,10,.25),0 1px 0 rgba(255,255,255,.5) inset;flex-wrap:wrap;gap:8px;z-index:100;position:relative;border-bottom:2px solid rgba(180,130,10,.3)}
+.hdr-l{display:flex;flex-direction:column}
+.logo{font-family:‘Playfair Display’,serif;font-size:32px;color:#3D2000;letter-spacing:6px;line-height:1;text-shadow:0 1px 0 rgba(255,255,255,.4)}
+.logo span{font-size:11px;letter-spacing:3px;color:rgba(80,45,0,.65);font-family:‘Cormorant Garamond’,serif;font-weight:600}
+.sig{font-family:‘Playfair Display’,serif;font-style:italic;color:#5A3200;font-size:26px;letter-spacing:4px;order:1;margin-left:auto;padding-right:4px;text-shadow:0 1px 0 rgba(255,255,255,.35)}
+/* CLOCK */
+.clk-wrap{display:flex;align-items:center;gap:16px}
+.aclk{width:66px;height:66px}
+.cf{fill:rgba(255,255,255,.3);stroke:#7A5500;stroke-width:2}
+.cc{fill:#3D2000}
+.ch{stroke:#3D2000;stroke-width:3;stroke-linecap:round}
+.cm{stroke:#6B4400;stroke-width:2;stroke-linecap:round}
+.cs{stroke:#cc4400;stroke-width:1.5;stroke-linecap:round}
+.dclk{text-align:right}
+.dt{font-family:‘Rajdhani’,sans-serif;font-size:28px;font-weight:700;color:#3D2000;letter-spacing:3px;line-height:1}
+.da{font-size:13px;color:#6B4400;letter-spacing:2px;font-weight:700}
+.dd{font-size:11px;color:rgba(80,45,0,.7);letter-spacing:1.5px}
+/* DANGER BTN */
+.dngr{background:linear-gradient(135deg,#cc0000,#880000);color:#fff;border:none;border-radius:50%;width:50px;height:50px;font-size:22px;cursor:pointer;box-shadow:0 0 0 3px rgba(204,0,0,.3),0 4px 15px rgba(204,0,0,.4);transition:.2s;display:flex;align-items:center;justify-content:center;animation:pd 2.5s infinite;flex-shrink:0}
+.dngr:hover{transform:scale(1.12);box-shadow:0 0 0 6px rgba(204,0,0,.25),0 6px 22px rgba(204,0,0,.5)}
+.dngr.sm{width:42px;height:42px;font-size:18px}
+@keyframes pd{0%,100%{box-shadow:0 0 0 3px rgba(204,0,0,.3),0 4px 15px rgba(204,0,0,.4)}50%{box-shadow:0 0 0 7px rgba(204,0,0,.1),0 4px 22px rgba(204,0,0,.5)}}
+
+/* DASHBOARD */
+.dash{padding:24px;flex:1;background:linear-gradient(160deg,#FFFCF0 0%,#FFF8E0 60%,#FDF5DC 100%)}
+.sec-t{font-family:‘Playfair Display’,serif;font-size:12px;letter-spacing:4px;color:#6B4400;text-transform:uppercase;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #E8C84A;display:flex;align-items:center;gap:10px;font-weight:700}
+.sec-t::after{content:’’;flex:1;height:2px;background:linear-gradient(to right,#E8C84A,transparent)}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:12px;margin-bottom:24px}
+.nc{background:linear-gradient(160deg,#FFFFFF,#FFFCEF);border:1.5px solid #D4AF60;border-radius:14px;padding:22px 14px;text-align:center;cursor:pointer;transition:.25s;box-shadow:0 3px 14px rgba(180,130,10,.12);position:relative;overflow:hidden}
+.nc::before{content:’’;position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#8B6914,#E8C96A,#8B6914);border-radius:14px 14px 0 0}
+.nc.sm::before{background:linear-gradient(90deg,#5a3d00,#C9A84C,#5a3d00)}
+.nc:hover{transform:translateY(-4px);box-shadow:0 8px 26px rgba(180,130,10,.22);border-color:#C9A84C;background:linear-gradient(160deg,#FFFDF5,#FFF8DC)}
+.nc-nm{font-family:‘Playfair Display’,serif;font-size:14px;font-weight:700;color:#3D2000;letter-spacing:1px}
+.nc-ct{font-size:11px;color:#8B6914;margin-top:5px;font-weight:600}
+
+/* DATE MANAGER */
+.date-mgr{background:linear-gradient(160deg,#FFFDF5,#FFF8DC);border:1.5px solid #D4AF60;border-radius:14px;padding:20px;margin-bottom:24px;box-shadow:0 3px 14px rgba(180,130,10,.1)}
+.date-mgr-t{font-family:‘Playfair Display’,serif;font-size:15px;color:#6B4400;letter-spacing:2px;margin-bottom:14px;display:flex;align-items:center;gap:10px;font-weight:700}
+.date-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #EDD88A}
+.date-row:last-child{border-bottom:none}
+.date-lbl{font-size:12px;font-weight:700;color:#8B6914;letter-spacing:1px;min-width:50px}
+.date-inp{background:#FFFDF5;border:1.5px solid #D4AF60;border-radius:8px;padding:8px 12px;font-family:‘Rajdhani’,sans-serif;font-size:14px;color:#1a1205;outline:none;transition:.2s}
+.date-inp:focus{border-color:#C9A84C;box-shadow:0 0 0 3px rgba(201,168,76,.15)}
+.add-row-btn{background:linear-gradient(135deg,#e6f7e6,#c8eec8);color:#1a5c1a;border:1.5px solid rgba(39,162,39,.4);border-radius:8px;padding:9px 18px;font-family:‘Rajdhani’,sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:.2s;margin-top:10px;box-shadow:0 2px 8px rgba(39,162,39,.1)}
+.add-row-btn:hover{background:linear-gradient(135deg,#c8eec8,#a8e0a8);box-shadow:0 3px 12px rgba(39,162,39,.2)}
+.del-row-btn{background:linear-gradient(135deg,#fce8e8,#f8d0d0);color:#880000;border:1.5px solid rgba(204,17,17,.3);border-radius:6px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:1px;transition:.2s;font-family:‘Rajdhani’,sans-serif}
+.del-row-btn:hover{background:linear-gradient(135deg,#f8d0d0,#f0b0b0)}
+
+/* TABLE SCREEN */
+.thdr{background:linear-gradient(135deg,#F5E099 0%,#EDD060 40%,#F0D870 70%,#E8C84A 100%);padding:14px 20px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 16px rgba(180,130,10,.22),0 1px 0 rgba(255,255,255,.4) inset;flex-wrap:wrap;border-bottom:2px solid rgba(160,110,5,.3)}
+.bk{background:rgba(255,255,255,.5);border:1.5px solid rgba(100,60,0,.4);color:#4A2800;border-radius:8px;padding:8px 16px;font-family:‘Rajdhani’,sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:.2s;white-space:nowrap}
+.bk:hover{background:rgba(255,255,255,.75);border-color:rgba(100,60,0,.6)}
+.tttl{font-family:‘Playfair Display’,serif;font-size:22px;color:#3D2000;letter-spacing:4px;flex:1;font-weight:700}
+.btn{border:none;border-radius:8px;padding:9px 18px;font-family:‘Rajdhani’,sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.bg{background:linear-gradient(135deg,#5a3800,#8B6914,#C9A84C);color:#fff;box-shadow:0 3px 12px rgba(100,60,0,.3)}
+.bg:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(100,60,0,.4)}
+.br{background:linear-gradient(135deg,#990000,#cc1111);color:#fff}
+.br:hover{transform:translateY(-1px)}
+.tc{padding:18px;flex:1;overflow:auto;background:linear-gradient(160deg,#FFFCF0,#FFF8E0)}
+.tw{overflow-x:auto;border-radius:14px;box-shadow:0 4px 18px rgba(180,130,10,.12);border:1.5px solid #D4AF60}
+table{width:100%;border-collapse:collapse;background:#fff}
+thead th{background:linear-gradient(135deg,#EDD060,#D4A820,#E8C84A);color:#3D2000;font-family:‘Rajdhani’,sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;padding:13px 10px;text-align:center;white-space:nowrap;border-right:1px solid rgba(160,110,5,.25);text-shadow:0 1px 0 rgba(255,255,255,.3)}
+thead th:last-child{border-right:none}
+tbody tr{border-bottom:1px solid #EDD88A;transition:.15s}
+tbody tr:hover{background:linear-gradient(90deg,rgba(255,240,180,.4),rgba(255,248,210,.4))}
+tbody tr:last-child{border-bottom:none}
+tbody td{padding:8px 10px;text-align:center;font-size:14px;color:#2a1800;font-weight:500;border-right:1px solid #EDD88A}
+tbody td:last-child{border-right:none}
+.auto{background:linear-gradient(135deg,#FFF0C0,#FFE88A);font-weight:700;color:#6B4400;font-size:14px}
+.tot{background:linear-gradient(135deg,#FFE040,#FFC820);font-weight:800;color:#3D2000;font-size:15px;border-radius:4px}
+.in{background:#FFFDF5;border:1.5px solid #D4AF60;border-radius:6px;padding:6px 8px;font-family:‘Rajdhani’,sans-serif;font-size:13px;color:#1a1205;outline:none;width:80px;text-align:center;transition:.2s}
+.in:focus{border-color:#C9A84C;box-shadow:0 0 0 3px rgba(201,168,76,.18);background:#FFFFFF}
+.in-date{width:130px}
+.ro{background:linear-gradient(135deg,#FFF0C0,#FFE88A);color:#6B4400;font-weight:700;border:1.5px solid #D4AF60;border-radius:6px;padding:6px 8px;font-size:13px;width:80px;text-align:center;cursor:not-allowed}
+.emsg{text-align:center;padding:44px;color:rgba(61,43,0,.4);font-family:‘Cormorant Garamond’,serif;font-size:18px;font-style:italic}
+
+/* OVERLAY / MODAL */
+.ov{display:none;position:fixed;inset:0;background:rgba(80,50,0,.55);z-index:1000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)}
+.ov.on{display:flex}
+.mod{background:linear-gradient(160deg,#FFFDF5,#FFF8DC);border:2px solid #D4AF60;border-radius:18px;width:420px;max-width:96%;box-shadow:0 20px 60px rgba(120,80,0,.25)}
+.mhd{background:linear-gradient(135deg,#EDD060,#D4A820,#E8C84A);padding:18px 22px;border-radius:16px 16px 0 0;display:flex;align-items:center;justify-content:space-between;border-bottom:1.5px solid rgba(160,110,5,.3)}
+.mtt{font-family:‘Playfair Display’,serif;color:#3D2000;font-size:18px;letter-spacing:3px;font-weight:700}
+.mx{background:rgba(255,255,255,.5);border:1.5px solid rgba(100,60,0,.3);color:#4A2800;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:16px;transition:.2s;font-weight:700}
+.mx:hover{background:rgba(204,17,17,.15);color:#cc0000;border-color:rgba(204,17,17,.4)}
+.mbd{padding:28px 22px;text-align:center}
+.mico{font-size:54px;display:block;margin-bottom:12px}
+.mtx{font-family:‘Playfair Display’,serif;font-size:17px;color:#3D2000;margin-bottom:8px;font-weight:700}
+.msu{font-size:13px;color:rgba(80,45,0,.6);margin-bottom:24px}
+.mft{display:flex;gap:12px;justify-content:center}
+.bcn{background:linear-gradient(135deg,#F5E6BA,#EDD88A);color:#4A2800;border:1.5px solid #C9A84C;padding:10px 20px;border-radius:8px;font-family:‘Rajdhani’,sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:.2s;letter-spacing:1px}
+.bcn:hover{background:linear-gradient(135deg,#EDD88A,#E0C060)}
+/* ANIMATED STICK FIGURE */
+.err-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:10px;min-height:90px}
+.stick-man{width:64px;height:80px;display:none}
+.stick-man.show{display:block}
+.sm-head{animation:shake-head .4s ease-in-out infinite alternate}
+.sm-body{}
+.sm-arm-l{transform-origin:28px 38px;animation:wave-l .35s ease-in-out infinite alternate}
+.sm-arm-r{transform-origin:36px 38px;animation:wave-r .35s ease-in-out infinite alternate}
+.sm-leg-l{transform-origin:32px 56px;animation:stomp-l .5s ease-in-out infinite alternate}
+.sm-leg-r{transform-origin:32px 56px;animation:stomp-r .5s ease-in-out infinite alternate}
+@keyframes shake-head{from{transform:translateX(-4px) rotate(-8deg)}to{transform:translateX(4px) rotate(8deg)}}
+@keyframes wave-l{from{transform:rotate(-30deg)}to{transform:rotate(-110deg)}}
+@keyframes wave-r{from{transform:rotate(30deg)}to{transform:rotate(110deg)}}
+@keyframes stomp-l{from{transform:rotate(-10deg)}to{transform:rotate(10deg)}}
+@keyframes stomp-r{from{transform:rotate(10deg)}to{transform:rotate(-10deg)}}
+.pc-mal{font-family:‘Rajdhani’,sans-serif;font-size:15px;color:#ff6b6b;font-weight:600;text-align:center;display:none;animation:pop-in .3s cubic-bezier(.34,1.56,.64,1)}
+.pc-mal.show{display:block}
+@keyframes pop-in{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+.toast{position:fixed;bottom:24px;right:24px;background:linear-gradient(135deg,#EDD060,#C9A84C);border:2px solid #A07820;color:#3D2000;padding:13px 22px;border-radius:12px;font-family:‘Rajdhani’,sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;z-index:9999;box-shadow:0 8px 24px rgba(160,110,10,.3);transform:translateX(200px);opacity:0;transition:all .4s cubic-bezier(.34,1.56,.64,1);pointer-events:none}
+.toast.show{transform:translateX(0);opacity:1}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:#FFF8DC}
+::-webkit-scrollbar-thumb{background:#C9A84C;border-radius:4px}
+
+/* INFO BADGE */
+.info-badge{background:linear-gradient(135deg,#FFF8DC,#FFF0B0);border:1.5px solid #D4AF60;border-radius:10px;padding:10px 16px;font-size:12px;color:#6B4400;letter-spacing:1px;margin-bottom:16px;display:flex;align-items:center;gap:8px;font-weight:600}
+
+@media(max-width:640px){
+.hdr{padding:10px 14px;min-height:auto}
+.logo{font-size:24px}
+.dt{font-size:20px}
+.aclk{width:50px;height:50px}
+.dash{padding:14px}
+.cgrid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
+.tc{padding:10px}
+.tttl{font-size:16px}
+}
+</style>
+
+</head>
+<body>
+
+<!-- ═══ PASSWORD ═══ -->
+
+<div class="screen on" id="s-pwd">
+  <div class="pc">
+    <div class="pc-ttl">18K</div>
+    <div class="pc-sub">Counter System</div>
+    <div class="pc-divider"></div>
+    <div class="pc-lbl">Enter Password</div>
+    <input class="pc-inp" type="password" id="pi" maxlength="10" placeholder="••••" autocomplete="off">
+    <button class="pc-btn" onclick="chkPwd()">✦ &nbsp;UNLOCK&nbsp; ✦</button>
+    <div class="err-wrap">
+      <svg class="stick-man" id="smfig" viewBox="0 0 64 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- head -->
+        <circle class="sm-head" cx="32" cy="14" r="9" stroke="#ff6b6b" stroke-width="2.5" fill="rgba(255,107,107,0.1)"/>
+        <!-- X face -->
+        <line class="sm-head" x1="27" y1="10" x2="31" y2="14" stroke="#ff6b6b" stroke-width="1.8" stroke-linecap="round"/>
+        <line class="sm-head" x1="31" y1="10" x2="27" y2="14" stroke="#ff6b6b" stroke-width="1.8" stroke-linecap="round"/>
+        <line class="sm-head" x1="33" y1="10" x2="37" y2="14" stroke="#ff6b6b" stroke-width="1.8" stroke-linecap="round"/>
+        <line class="sm-head" x1="37" y1="10" x2="33" y2="14" stroke="#ff6b6b" stroke-width="1.8" stroke-linecap="round"/>
+        <!-- sad mouth -->
+        <path class="sm-head" d="M27 17 Q32 14 37 17" stroke="#ff6b6b" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+        <!-- body -->
+        <line class="sm-body" x1="32" y1="23" x2="32" y2="54" stroke="#ff6b6b" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- left arm -->
+        <line class="sm-arm-l" x1="32" y1="34" x2="14" y2="24" stroke="#ff6b6b" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- right arm -->
+        <line class="sm-arm-r" x1="32" y1="34" x2="50" y2="24" stroke="#ff6b6b" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- left leg -->
+        <line class="sm-leg-l" x1="32" y1="54" x2="18" y2="72" stroke="#ff6b6b" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- right leg -->
+        <line class="sm-leg-r" x1="32" y1="54" x2="46" y2="72" stroke="#ff6b6b" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <div class="pc-mal" id="pe">ശരി അല്ലല്ലോ മോനൂസേ</div>
+    </div>
+    <div class="pc-sig">✦ by Ajmal ✦</div>
+  </div>
+</div>
+
+<!-- ═══ DASHBOARD ═══ -->
+
+<div class="screen" id="s-dash">
+  <div class="hdr">
+    <div class="hdr-l">
+      <div class="logo">18K &nbsp;<span>COUNTER</span></div>
+    </div>
+    <div class="clk-wrap">
+      <svg class="aclk" viewBox="0 0 100 100" id="ac">
+        <circle class="cf" cx="50" cy="50" r="47"/>
+        <g id="atk"></g>
+        <line class="ch" id="hh" x1="50" y1="50" x2="50" y2="26"/>
+        <line class="cm" id="mh" x1="50" y1="50" x2="50" y2="16"/>
+        <line class="cs" id="sh" x1="50" y1="56" x2="50" y2="13"/>
+        <circle class="cc" cx="50" cy="50" r="3.5"/>
+      </svg>
+      <div class="dclk">
+        <div class="dt" id="dt">12:00:00</div>
+        <div class="da" id="da">AM</div>
+        <div class="dd" id="dd">---</div>
+      </div>
+    </div>
+    <div class="sig">✦ by Ajmal ✦</div>
+    <button class="dngr" onclick="askAllDel()" title="⚠ DELETE ALL DATA">☢</button>
+  </div>
+  <div class="dash">
+    <!-- Date Manager -->
+    <div class="date-mgr">
+      <div class="date-mgr-t">SHARED DATES &nbsp;<span style="font-family:'Cormorant Garamond',serif;font-size:12px;color:rgba(139,105,20,.7);font-style:italic;letter-spacing:2px">(used by all items)</span></div>
+      <div id="date-rows"></div>
+      <button class="add-row-btn" onclick="addDateRow()">＋ ADD DATE ROW</button>
+    </div>
+    <div class="sec-t">✦ JEWELLERY ITEMS</div>
+    <div class="cgrid" id="ic"></div>
+    <div class="sec-t">✦ ORDER BOX &amp; MARRIAGE (Enter to fill ODR / MRG)</div>
+    <div class="cgrid" id="sc"></div>
+    <div class="sec-t">✦ AUTO SUMMERY</div>
+    <div class="cgrid" id="syc"></div>
+  </div>
+</div>
+
+<!-- ═══ TABLE SCREEN ═══ -->
+
+<div class="screen" id="s-tbl">
+  <div class="thdr">
+    <button class="bk" onclick="goBack()">◀ BACK</button>
+    <div class="tttl" id="tt">—</div>
+    <button class="btn bg" onclick="saveAll()">SAVE</button>
+    <button class="dngr sm" onclick="askAllDel()" title="⚠ DELETE ALL DATA">☢</button>
+  </div>
+  <div id="tbl-info" class="tc" style="padding-top:0"></div>
+  <div class="tc" style="padding-top:0">
+    <div class="tw"><table><thead id="th"></thead><tbody id="tb"></tbody></table></div>
+  </div>
+</div>
+
+<!-- ═══ CONFIRM MODAL ═══ -->
+
+<div class="ov" id="ov-conf">
+  <div class="mod">
+    <div class="mhd"><div class="mtt" id="ct">CONFIRM</div><button class="mx" onclick="closeOv()">✕</button></div>
+    <div class="mbd">
+      <span class="mico" id="ci">⚠️</span>
+      <div class="mtx" id="cmx">Are you sure?</div>
+      <div class="msu" id="csu">This cannot be undone.</div>
+      <div class="mft">
+        <button class="bcn" onclick="closeOv()">◀ CANCEL</button>
+        <button class="btn br" id="cok">DELETE</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="tst"></div>
+
+<script>
+/* ══════════════════════════════════════════════════════
+   CONFIGURATION
+══════════════════════════════════════════════════════ */
+// Item definitions with their manually-editable columns
+const ITEMS = [
+  { key:'bangle',    name:'BANGLE',    cols:['DISP','WALL','BOX','WASTE','OG','SALE','TRAY'] },
+  { key:'chain',     name:'CHAIN',     cols:['DISP','WALL','BOX','WASTE','OG','SALE','TRAY'] },
+  { key:'drops',     name:'DROPS',     cols:['DISP','WALL','BOX','WASTE','OG','SALE','TRAY'] },
+  { key:'handchain', name:'HANDCHAIN', cols:['SIDE TRAY','WALL','BOX','WASTE','OG','SALE','TRAY'] },
+  { key:'kaikanji',  name:'KAIKANJI',  cols:['DISP','WALL','BOX','WASTE','OG','SALE','TRAY'] },
+  { key:'locket',    name:'LOCKET',    cols:['DISP','WALL','BOX','WASTE','OG','SALE','TRAY'] },
+  { key:'neckles',   name:'NECKLES',   cols:['WALL','WALL2','BOX','WASTE','OG','SALE','TRAY'] },
+  { key:'padasaram', name:'PADASARAM', cols:['DISP','WALL','BOX','WASTE','OG','SALE','TRAY'] },
+  { key:'ring',      name:'RING',      cols:['DISP','BACK TRAY','BOX','WASTE','OG','SALE','TRAY'] },
+];
+// Summary-type tables (ORDER BOX, MARRIAGE)
+const OB_COLS = ['BANGLE','CHAIN','DROPS','HAND CHAIN','KAIKANJI','LOCKET','NECKLES','PADSARAM','RING'];
+const OB_KEYS = ['bangle','chain','drops','handchain','kaikanji','locket','neckles','padasaram','ring'];
+
+/* ══════════════════════════════════════════════════════
+   DATA MODEL
+   DB.dates[i]           — shared date for row i
+   DB.items[key][i][col] — item data per row
+   DB.orderbox[i][key]   — ODR values per row (goes into each item's ODR column)
+   DB.marriage[i][key]   — MRG values per row (goes into each item's MRG column)
+══════════════════════════════════════════════════════ */
+let DB = {dates:[], items:{}, orderbox:[], marriage:[]};
+ITEMS.forEach(it => DB.items[it.key] = []);
+
+function loadDB(){
+  try{ const s=localStorage.getItem('18k_db'); if(s) DB=JSON.parse(s); }catch(e){}
+  // ensure arrays exist
+  ITEMS.forEach(it=>{ if(!DB.items[it.key]) DB.items[it.key]=[]; });
+  if(!DB.orderbox) DB.orderbox=[];
+  if(!DB.marriage) DB.marriage=[];
+}
+function saveDB(){ localStorage.setItem('18k_db',JSON.stringify(DB)); }
+function clearDB(){
+  DB={dates:[],items:{},orderbox:[],marriage:[]};
+  ITEMS.forEach(it=>DB.items[it.key]=[]);
+  saveDB();
+}
+
+/* Row sync: ensures all item arrays and orderbox/marriage have same length as dates */
+function syncRows(){
+  const n=DB.dates.length;
+  ITEMS.forEach(it=>{
+    while(DB.items[it.key].length<n){ const r={}; it.cols.forEach(c=>r[c]=''); DB.items[it.key].push(r); }
+    DB.items[it.key].length=n;
+  });
+  while(DB.orderbox.length<n){ const r={}; OB_KEYS.forEach(k=>r[k]=''); DB.orderbox.push(r); }
+  DB.orderbox.length=n;
+  while(DB.marriage.length<n){ const r={}; OB_KEYS.forEach(k=>r[k]=''); DB.marriage.push(r); }
+  DB.marriage.length=n;
+}
+
+/* Compute total for an item row */
+function calcTotal(itemKey, rowIdx){
+  const it=ITEMS.find(x=>x.key===itemKey);
+  const row=DB.items[itemKey][rowIdx]||{};
+  const odr=parseFloat(DB.orderbox[rowIdx]?.[itemKey])||0;
+  const mrg=parseFloat(DB.marriage[rowIdx]?.[itemKey])||0;
+  let sum=odr+mrg;
+  it.cols.forEach(c=>{ sum+=parseFloat(row[c])||0; });
+  return sum;
+}
+
+/* ══════════════════════════════════════════════════════
+   PASSWORD
+══════════════════════════════════════════════════════ */
+document.getElementById('pi').addEventListener('keydown',e=>e.key==='Enter'&&chkPwd());
+function chkPwd(){
+  if(document.getElementById('pi').value==='AJ97'){
+    sw('s-pwd','s-dash'); loadDB(); syncRows(); buildDash();
+  } else {
+    const msg=document.getElementById('pe');
+    const fig=document.getElementById('smfig');
+    document.getElementById('pi').value='';
+    document.getElementById('pi').style.borderColor='#ff6b6b';
+    // show stick figure and Malayalam message
+    fig.classList.add('show');
+    msg.classList.remove('show');
+    void msg.offsetWidth; // force reflow for animation replay
+    msg.classList.add('show');
+    setTimeout(()=>{
+      fig.classList.remove('show');
+      msg.classList.remove('show');
+      document.getElementById('pi').style.borderColor='';
+    }, 3000);
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   SCREEN HELPER
+══════════════════════════════════════════════════════ */
+function sw(off,on){
+  document.getElementById(off).classList.remove('on');
+  document.getElementById(on).classList.add('on');
+}
+
+/* ══════════════════════════════════════════════════════
+   CLOCK
+══════════════════════════════════════════════════════ */
+(function buildTicks(){
+  const g=document.getElementById('atk'); if(!g)return;
+  let h='';
+  for(let i=0;i<60;i++){
+    const a=(i*6-90)*Math.PI/180,r1=i%5===0?37:42,r2=46;
+    h+=`<line x1="${(50+r1*Math.cos(a)).toFixed(2)}" y1="${(50+r1*Math.sin(a)).toFixed(2)}" x2="${(50+r2*Math.cos(a)).toFixed(2)}" y2="${(50+r2*Math.sin(a)).toFixed(2)}" stroke="${i%5===0?'rgba(61,32,0,.85)':'rgba(80,45,0,.35)'}" stroke-width="${i%5===0?2:.8}"/>`;
+  }
+  [12,1,2,3,4,5,6,7,8,9,10,11].forEach((n,i)=>{
+    const a=(i*30-90)*Math.PI/180;
+    h+=`<text x="${(50+31*Math.cos(a)).toFixed(1)}" y="${(50+31*Math.sin(a)+4).toFixed(1)}" fill="rgba(61,32,0,.8)" font-size="7" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="600">${n}</text>`;
+  });
+  g.innerHTML=h;
+})();
+function tick(){
+  const now=new Date(),h24=now.getHours(),m=now.getMinutes(),s=now.getSeconds();
+  const h12=h24%12||12,ap=h24<12?'AM':'PM';
+  const el_t=document.getElementById('dt'),el_a=document.getElementById('da'),el_d=document.getElementById('dd');
+  if(el_t)el_t.textContent=`${String(h12).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  if(el_a)el_a.textContent=ap;
+  if(el_d){
+    const D=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    el_d.textContent=`${D[now.getDay()]} ${now.getDate()} ${M[now.getMonth()]} ${now.getFullYear()}`;
+  }
+  function hp(deg,len){const r=(deg-90)*Math.PI/180;return{x:(50+len*Math.cos(r)).toFixed(2),y:(50+len*Math.sin(r)).toFixed(2)}}
+  const hv=hp(h12%12*30+m*.5,20),mv=hp(m*6,28),sv=hp(s*6,30),sb=hp(s*6+180,7);
+  const hh=document.getElementById('hh'),mh=document.getElementById('mh'),seh=document.getElementById('sh');
+  if(hh){hh.setAttribute('x2',hv.x);hh.setAttribute('y2',hv.y)}
+  if(mh){mh.setAttribute('x2',mv.x);mh.setAttribute('y2',mv.y)}
+  if(seh){seh.setAttribute('x1',sb.x);seh.setAttribute('y1',sb.y);seh.setAttribute('x2',sv.x);seh.setAttribute('y2',sv.y)}
+}
+tick(); setInterval(tick,1000);
+
+/* ══════════════════════════════════════════════════════
+   DASHBOARD
+══════════════════════════════════════════════════════ */
+function buildDash(){
+  // Date rows
+  const dr=document.getElementById('date-rows');
+  dr.innerHTML='';
+  if(DB.dates.length===0){
+    dr.innerHTML='<div style="color:rgba(139,105,20,.5);font-size:13px;font-style:italic;padding:8px 0">No date rows yet. Press "+ ADD DATE ROW" below.</div>';
+  } else {
+    DB.dates.forEach((d,i)=>{
+      const row=document.createElement('div');
+      row.className='date-row';
+      row.innerHTML=`<span class="date-lbl">ROW ${i+1}</span>
+        <input class="in in-date" type="date" value="${d}" oninput="DB.dates[${i}]=this.value;saveDB();buildDash()" >
+        <button class="del-row-btn" onclick="deleteRow(${i})">✕ REMOVE</button>`;
+      dr.appendChild(row);
+    });
+  }
+  // Item cards
+  const ic=document.getElementById('ic');
+  ic.innerHTML=ITEMS.map(it=>`
+    <div class="nc" onclick="openView('item','${it.key}')">
+      <div class="nc-nm">${it.name}</div>
+      <div class="nc-ct">${DB.dates.length} date rows</div>
+    </div>`).join('');
+  // Summary-type cards
+  const sc=document.getElementById('sc');
+  sc.innerHTML=`
+    <div class="nc sm" onclick="openView('orderbox','')">
+      <div class="nc-nm">ORDER BOX</div>
+      <div class="nc-ct">Fills ODR column</div>
+    </div>
+    <div class="nc sm" onclick="openView('marriage','')">
+      <div class="nc-nm">MARRIAGE</div>
+      <div class="nc-ct">Fills MRG column</div>
+    </div>`;
+  // Summery card
+  document.getElementById('syc').innerHTML=`
+    <div class="nc sm" onclick="openView('summery','')">
+      <div class="nc-nm">SUMMERY</div>
+      <div class="nc-ct">Auto-calculated totals</div>
+    </div>`;
+}
+
+/* ══════════════════════════════════════════════════════
+   DATE ROW MANAGEMENT
+══════════════════════════════════════════════════════ */
+function addDateRow(){
+  DB.dates.push(''); syncRows(); saveDB(); buildDash();
+  toast('✦ Date row added');
+}
+function deleteRow(i){
+  pending=()=>{
+    DB.dates.splice(i,1);
+    ITEMS.forEach(it=>DB.items[it.key].splice(i,1));
+    DB.orderbox.splice(i,1);
+    DB.marriage.splice(i,1);
+    saveDB(); buildDash(); toast('Row deleted.');
+  };
+  askConfirm('DELETE ROW','⚠️','Remove date row '+(i+1)+'?','All data in this row will be deleted.','✕ DELETE ROW');
+}
+
+/* ══════════════════════════════════════════════════════
+   TABLE VIEWS
+══════════════════════════════════════════════════════ */
+let curView='', curKey='';
+function openView(view, key){
+  curView=view; curKey=key;
+  syncRows();
+  sw('s-dash','s-tbl');
+
+  if(view==='item') renderItem(key);
+  else if(view==='orderbox') renderOrderBox();
+  else if(view==='marriage') renderMarriage();
+  else if(view==='summery') renderSummery();
+}
+function goBack(){ sw('s-tbl','s-dash'); buildDash(); }
+
+/* ── ITEM VIEW ── */
+function renderItem(key){
+  const it=ITEMS.find(x=>x.key===key);
+  document.getElementById('tt').textContent=it.name;
+
+  document.getElementById('tbl-info').innerHTML=`
+    <div style="padding:12px 18px 0">
+      <div class="info-badge">
+        <b>ODR</b> is auto-filled from ORDER BOX &nbsp;|&nbsp; <b>MRG</b> is auto-filled from MARRIAGE &nbsp;|&nbsp; <b>TOTAL</b> = sum of all columns
+      </div>
+    </div>`;
+
+  const allCols=['DATE',...it.cols,'ODR','MRG','TOTAL'];
+  document.getElementById('th').innerHTML=
+    '<tr>'+allCols.map(c=>`<th>${c}</th>`).join('')+'</tr>';
+
+  const tbody=document.getElementById('tb');
+  if(DB.dates.length===0){
+    tbody.innerHTML=`<tr><td colspan="${allCols.length}" class="emsg">No date rows — go back and add dates first</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML=DB.dates.map((date,i)=>{
+    const row=DB.items[key][i]||{};
+    const odr=DB.orderbox[i]?.[key]??'';
+    const mrg=DB.marriage[i]?.[key]??'';
+    const tot=calcTotal(key,i);
+
+    let cells=`<td><input class="in in-date" type="date" value="${date}" onchange="DB.dates[${i}]=this.value;saveDB();updateSharedDates(${i},this.value)"></td>`;
+    it.cols.forEach(c=>{
+      const safeC=c.replace(/'/g,"\\'");
+      const v=row[c]??'';
+      cells+=`<td><input class="in" type="number" step="any" min="0" value="${v}" oninput="DB.items['${key}'][${i}]['${safeC}']=this.value;saveDB();refreshTotal('${key}',${i})"></td>`;
+    });
+    cells+=`<td><div class="auto ro" id="odr-${key}-${i}">${odr||0}</div></td>`;
+    cells+=`<td><div class="auto ro" id="mrg-${key}-${i}">${mrg||0}</div></td>`;
+    cells+=`<td><div class="tot" id="tot-${key}-${i}">${tot}</div></td>`;
+    return `<tr>${cells}</tr>`;
+  }).join('');
+}
+
+/* Update only the TOTAL cell for one row — no table re-render */
+function refreshTotal(key,i){
+  const el=document.getElementById('tot-'+key+'-'+i);
+  if(el) el.textContent=calcTotal(key,i);
+}
+
+/* Update date inputs across all views without re-render */
+function updateSharedDates(i,val){
+  document.querySelectorAll('[data-date-row="'+i+'"]').forEach(el=>{ el.value=val; });
+}
+
+/* ── ORDER BOX VIEW ── */
+function renderOrderBox(){
+  document.getElementById('tt').textContent='ORDER BOX';
+  document.getElementById('tbl-info').innerHTML=`
+    <div style="padding:12px 18px 0">
+      <div class="info-badge">Values entered here automatically fill the <b>ODR</b> column in each jewellery item table</div>
+    </div>`;
+
+  document.getElementById('th').innerHTML=
+    '<tr><th>DATE</th>'+OB_COLS.map(c=>`<th>${c}</th>`).join('')+'</tr>';
+
+  const tbody=document.getElementById('tb');
+  if(DB.dates.length===0){
+    tbody.innerHTML=`<tr><td colspan="${OB_COLS.length+1}" class="emsg">No date rows — go back and add dates first</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML=DB.dates.map((date,i)=>{
+    const row=DB.orderbox[i]||{};
+    let cells=`<td><input class="in in-date" type="date" value="${date}" onchange="DB.dates[${i}]=this.value;saveDB();updateSharedDates(${i},this.value)"></td>`;
+    OB_KEYS.forEach(k=>{
+      const v=row[k]??'';
+      cells+=`<td><input class="in" type="number" step="any" min="0" value="${v}" oninput="if(!DB.orderbox[${i}])DB.orderbox[${i}]={};DB.orderbox[${i}]['${k}']=this.value;saveDB()"></td>`;
+    });
+    return `<tr>${cells}</tr>`;
+  }).join('');
+}
+
+/* ── MARRIAGE VIEW ── */
+function renderMarriage(){
+  document.getElementById('tt').textContent='MARRIAGE';
+  document.getElementById('tbl-info').innerHTML=`
+    <div style="padding:12px 18px 0">
+      <div class="info-badge">Values entered here automatically fill the <b>MRG</b> column in each jewellery item table</div>
+    </div>`;
+
+  document.getElementById('th').innerHTML=
+    '<tr><th>DATE</th>'+OB_COLS.map(c=>`<th>${c}</th>`).join('')+'</tr>';
+
+  const tbody=document.getElementById('tb');
+  if(DB.dates.length===0){
+    tbody.innerHTML=`<tr><td colspan="${OB_COLS.length+1}" class="emsg">No date rows — go back and add dates first</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML=DB.dates.map((date,i)=>{
+    const row=DB.marriage[i]||{};
+    let cells=`<td><input class="in in-date" type="date" value="${date}" onchange="DB.dates[${i}]=this.value;saveDB();updateSharedDates(${i},this.value)"></td>`;
+    OB_KEYS.forEach(k=>{
+      const v=row[k]??'';
+      cells+=`<td><input class="in" type="number" step="any" min="0" value="${v}" oninput="if(!DB.marriage[${i}])DB.marriage[${i}]={};DB.marriage[${i}]['${k}']=this.value;saveDB()"></td>`;
+    });
+    return `<tr>${cells}</tr>`;
+  }).join('');
+}
+
+/* ── SUMMERY VIEW ── */
+function renderSummery(){
+  document.getElementById('tt').textContent='SUMMERY';
+  document.getElementById('tbl-info').innerHTML=`
+    <div style="padding:12px 18px 0">
+      <div class="info-badge">All values here are <b>auto-calculated</b> — this table shows the TOTAL for each item per date row</div>
+    </div>`;
+
+  const cols=['DATE',...OB_COLS];
+  document.getElementById('th').innerHTML='<tr>'+cols.map(c=>`<th>${c}</th>`).join('')+'</tr>';
+
+  const tbody=document.getElementById('tb');
+  if(DB.dates.length===0){
+    tbody.innerHTML=`<tr><td colspan="${cols.length}" class="emsg">No date rows — go back and add dates first</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML=DB.dates.map((date,i)=>{
+    let cells=`<td class="auto">${date||'—'}</td>`;
+    OB_KEYS.forEach(k=>{
+      const t=calcTotal(k,i);
+      cells+=`<td class="tot">${t}</td>`;
+    });
+    return `<tr>${cells}</tr>`;
+  }).join('');
+}
+
+function saveAll(){ saveDB(); toast('Saved!'); }
+
+/* ══════════════════════════════════════════════════════
+   ALL DELETE
+══════════════════════════════════════════════════════ */
+function askAllDel(){
+  pending=()=>{ clearDB(); syncRows(); buildDash(); if(curView) rerenderCur(); toast('All data cleared.'); };
+  askConfirm('⚠ DANGER','☢','DELETE ALL DATA?','Every date row and all entered values will be permanently erased.','🗑 DELETE EVERYTHING');
+}
+
+/* ══════════════════════════════════════════════════════
+   CONFIRM MODAL
+══════════════════════════════════════════════════════ */
+let pending=null;
+function askConfirm(ttl,ico,txt,sub,btnTxt){
+  document.getElementById('ct').textContent=ttl;
+  document.getElementById('ci').textContent=ico;
+  document.getElementById('cmx').textContent=txt;
+  document.getElementById('csu').textContent=sub;
+  const b=document.getElementById('cok');
+  b.textContent=btnTxt;
+  b.onclick=()=>{ closeOv(); if(pending){pending();pending=null;} };
+  document.getElementById('ov-conf').classList.add('on');
+}
+function closeOv(){ document.getElementById('ov-conf').classList.remove('on'); }
+document.getElementById('ov-conf').addEventListener('click',e=>{ if(e.target.id==='ov-conf')closeOv(); });
+
+/* ══════════════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════════════ */
+let tmr=null;
+function toast(msg){
+  const t=document.getElementById('tst');
+  t.textContent=msg; t.classList.add('show');
+  if(tmr)clearTimeout(tmr);
+  tmr=setTimeout(()=>t.classList.remove('show'),2800);
+}
+</script>
+
+</body>
+</html>
